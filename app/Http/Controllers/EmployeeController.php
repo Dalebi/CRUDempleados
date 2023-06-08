@@ -64,14 +64,14 @@ class EmployeeController extends Controller
 
         } catch (\Exception $e) {
 
-            $data_response['database_response'] = "Error, somethings wrong with the registry!";
+            $data_response['database_response'] = "Error, algo sucedio con el regitro!";
             return to_route('employees.create')->with($data_response);
         }
 
         if($obj->employee_id) {
-            return redirect()->route('employees.create')->with('database_response','Record saved succesfully!');
+            return redirect()->route('employees.create')->with('database_response','Registro guardado exitosamente!');
         }
-        return redirect()->route('employees.create')->with('database_response','Error, Nothing to save!');
+        return redirect()->route('employees.create')->with('database_response','Error, Nada que guardar!');
 
     }
 
