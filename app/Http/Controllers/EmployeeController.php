@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Http\Requests\EmployeeRequest;
 use App\Models\Employee;
+use App\Models\Company;
+use App\Models\Position;
 
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 
-class UserController extends Controller
+
+class EmployeeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,7 +27,7 @@ class UserController extends Controller
 
         $user = auth()->user();
 
-        return Inertia::render('User/Index', [
+        return Inertia::render('Employee/Index', [
             'database_response' => session('database_response'),
             'EmployeeList' => $model,
             'User' => $user,
@@ -36,15 +39,40 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        $user = Auth::user();
+        return Inertia::render('Employee/Create', [
+           'user' => $user->id,
+            'databaseResponse' => session('database_response'),
+            'companies' => Company::orderBy('name')->get(),
+            'positions' => Position::orderBy('name')->get(),
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(EmployeeRequest $request)
     {
-        //
+        $data_response = [
+            'database_response' => '',
+        ];
+
+        $obj = new Employee($request->validated());
+
+        try {
+             $obj->save();
+
+        } catch (\Exception $e) {
+
+            $data_response['database_response'] = "Error, somethings wrong with the registry!";
+            return to_route('employees.create')->with($data_response);
+        }
+
+        if($obj->employee_id) {
+            return redirect()->route('employees.create')->with('database_response','Record saved succesfully!');
+        }
+        return redirect()->route('employees.create')->with('database_response','Error, Nothing to save!');
+
     }
 
     /**
@@ -52,26 +80,15 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $model = User::where('id',$id)->first();
+        $model = Employee::
+        select( 'emp.*', "com.name as company", "pos.name as position")
+        ->from("employees as emp")
+        ->leftjoin("companies as com", "com.id", "=", "emp.company_id"  )
+        ->leftjoin("positions as pos", "pos.id", "=", "emp.position_id" )
+        ->where('employee_id',$id)->first();
 
-        //Recover all the Roles with user permissons
-        $roles = Role::
-            select("rol.id", "rol.name", "mhr.model_id as has_role")
-            ->from("roles as rol")
-            ->leftJoin("model_has_roles as mhr", function($join) use ($id)
-            {
-                $join->on("mhr.role_id", "=", "rol.id");
-                $join->where("mhr.model_id","=", "$id");
-            })
-            ->get();
-
-        $Roles = auth()->user()->getRoleNames(); //Roles From User Logged
-
-        return Inertia::render('User/Show', [
-            'database_response' => session('database_response'),
+        return Inertia::render('Employee/Show', [
             'model' => $model,
-            'roles' => $roles,
-            'Roles' => $Roles,
         ]);
     }
 
@@ -80,43 +97,27 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        $model = User::where('id',$id)->first();
+        $model = Employee::where('employee_id',$id)->first();
 
-        $roles = Role::
-            select("rol.id", "rol.name", "mhr.model_id as has_role")
-            ->from("roles as rol")
-            ->leftJoin("model_has_roles as mhr", function($join) use ($id)
-            {
-                $join->on("mhr.role_id", "=", "rol.id");
-                $join->where("mhr.model_id","=", "$id");
-            })
-            ->get();
-
-        return Inertia::render('User/Edit', [
-            'database_response' => session('database_response')!=null?session('database_response'):'',
+        return Inertia::render('Employee/Edit', [
+            'databaseResponse' => session('database_response')!=null?session('database_response'):'',
             'model' => $model,
-            'roles' => $roles,
+            'companies' => Company::orderBy('name')->get(),
+            'positions' => Position::orderBy('name')->get(),
+
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(string $id, EmployeeRequest $request)
     {
-        $user = User::where('id',$id)->first();
+        $model = Employee::where('employee_id',$id)->first();
 
-        $prepareRoles = function($obj){
-            if($obj['has_role']>0){
-                return $obj['name'];
-            }
-        };
+        $result = $model->update(array_filter($request->validated()));
 
-        $roles = array_map($prepareRoles, $request->all());
-        $res =    $user->syncRoles($roles);
-
-       // $permissions = $user->getPermissionsViaRoles();
-        return to_route('users.edit', $id)->with('database_response','Permisos Actualizados Exitosamente!'); //inertia redirect
+        return to_route('employees.edit', $model->employee_id)->with('database_response','Datos Actualizados Exitosamente!'); //inertia redirect
 
     }
 
@@ -130,25 +131,24 @@ class UserController extends Controller
 
 
     function all(){//Request $request
-        $User =  User::orderBy('name', 'asc')->get()->toArray();
-/*
-        $User = User::
-        select( 'ce.id','internal_id','serial','conc.name as concept','brand.name as brand','model.name as model','processor','memory' )
-            ->from("computer_equipments as ce")
-            ->leftjoin("lst_concepts as conc", "conc.id", "=", "ce.concept_id")
-            ->leftjoin("lst_brands as brand", "brand.id", "=", "ce.brand_id")
-            ->leftjoin("lst_models as model", "model.id", "=", "ce.model_id")
-            ->get()->toArray();
-*/
-            foreach($User as $key => $value){
-                $User[$key]['id'] = "<a href=\"". route('users.show', $User[$key]['id'] ) ."\">" . $User[$key]['id'] . "</a></b>";
-                $User[$key]['name'] = "<b>" . $User[$key]['name'] . "</b>";
+        $employee =  Employee::
+        select( 'emp.*', "com.name as company", "pos.name as position")
+        ->from("employees as emp")
+        ->leftjoin("companies as com", "com.id", "=", "emp.company_id"  )
+        ->leftjoin("positions as pos", "pos.id", "=", "emp.position_id" )
+        ->get()->toArray();
+
+
+        foreach($employee as $key => $value){
+                $employee[$key]['employee_id'] = "<a href=\"". route('employees.show', $employee[$key]['employee_id'] ) ."\">" . $employee[$key]['employee_id'] . "</a></b>";
+                $employee[$key]['name'] = "<b>" . $employee[$key]['name'] . "</b>";
+                $employee[$key]['start_at'] = "<b>" . date("Y-m-d", $employee[$key]['start_at']) . "</b>";
             }
 
 
     //When the data is the MODEL then it needs to be converted to simple object and formatted with json encode
      $data = new \stdClass();
-     $data->data = $User;
+     $data->data = $employee;
     //print_r(json_encode($data));exit;
 
     return ($data);
