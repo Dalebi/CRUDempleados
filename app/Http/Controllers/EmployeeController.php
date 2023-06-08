@@ -28,7 +28,7 @@ class EmployeeController extends Controller
         $user = auth()->user();
 
         return Inertia::render('Employee/Index', [
-            'database_response' => session('database_response'),
+            'databaseResponse' => session('database_response'),
             'EmployeeList' => $model,
             'User' => $user,
         ]);
@@ -88,6 +88,7 @@ class EmployeeController extends Controller
         ->where('employee_id',$id)->first();
 
         return Inertia::render('Employee/Show', [
+            'databaseResponse' => session('database_response'),
             'model' => $model,
         ]);
     }
@@ -126,7 +127,10 @@ class EmployeeController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $model = Employee::where('employee_id',$id)->first();
+        $result = $model->delete();
+
+        return to_route('employees.index')->with('database_response','Registro Eliminado Exitosamente!'); //inertia redirect
     }
 
 

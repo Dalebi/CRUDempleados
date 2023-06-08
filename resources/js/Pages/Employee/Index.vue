@@ -1,24 +1,29 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import Header from '../Partials/Header.vue';
 
+import Header from '../Partials/Header.vue';
+import DatabaseResponse from '../Partials/DatabaseResponse.vue';
 import { faUser, faFile, faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import DataTable from 'datatables.net-vue3';
 import DataTablesLib from 'datatables.net-bs5';
+import { ref } from 'vue'
+import { onMounted } from 'vue';
 
 
 DataTable.use(DataTablesLib);
 
-const props = defineProps({ errors: Object, User: Object, EmployeeList: JSON, database_response: String })
+const props = defineProps({ errors: Object, User: Object, EmployeeList: JSON, databaseResponse: String })
 
-console.log('EmpL', props.EmployeeList);
 
 const title = "Empleados :: Inicio";
-const route_new = "create";//We can also send the route name equiptmentTypes.create and print with route(route_new) in the component and works fine, but since in visual studio editor marks error because cannot associate the route function with a param send via props component, then we opt for send the url
+const route_new = "create";
+const MsgComponent = ref();//For Database Response
+const msg_response = ref(props.databaseResponse);// this const will be used for replacing the state of databaseResponse wich one cannt be modified from here
 
+console.log('msg_response',msg_response);
 const columns =  [
             { data: 'employee_id' },
             { data: 'name' },
@@ -35,7 +40,13 @@ const ajax = {
             datatype: "Html",
 };
 
+const updateDatabaseResponse = function (){
+    msg_response.value = '';
+}
 
+onMounted(() => {
+    MsgComponent.value.toggleMsg(5000);
+})
 </script>
 
 <template>
@@ -46,6 +57,13 @@ const ajax = {
          <Header :title="title" :routeNew="route_new"  >
             <template #icon><FontAwesomeIcon :icon='faUser' class="align-middle h-7 w-7  text-gray-500 float-left mr-2 "></FontAwesomeIcon> </template>
         </Header>
+
+        <div class="flex flex-row mt-4  justify-center" :class="msg_response!=''?'block':'hidden'" >
+            <div class="basis-1/2 pt-4 sm:pt-6 lg:pt-8">
+        <DatabaseResponse :msg=databaseResponse @update-msg="updateDatabaseResponse"
+            ref="MsgComponent"></DatabaseResponse>
+        </div>
+        </div>
 
         <div v-if="EmployeeList.total>0">
             <div class="flex flex-row mt-2  justify-center">
