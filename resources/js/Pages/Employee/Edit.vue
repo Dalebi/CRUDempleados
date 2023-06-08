@@ -48,9 +48,13 @@ const formatDate = function (date) {
 form.start_at = formatDate('start_at');
 
 function stopSubmit() {
+    ModalComponent.value.toggleModal();
+
     form.put(route('employees.update', props.model.employee_id ), { onSuccess: () => {
         msg_response.value = props.databaseResponse;
         MsgComponent.value.toggleMsg(5000);
+        ModalComponent.value.toggleModal();
+
     },
     onError: () => {
         ModalComponent.value.toggleModal();
@@ -64,6 +68,7 @@ function stopSubmit() {
 <template>
     <Head :title="title" />
 
+    <Modal title='Saving...' :content="modalContent" ref="ModalComponent"></Modal>
 
 
     <AuthenticatedLayout>
@@ -71,6 +76,7 @@ function stopSubmit() {
             <Header :title="title">
             <template #icon> <FontAwesomeIcon :icon='faUserTie' class="align-middle h-7 w-7  text-gray-500 float-left mr-2 "></FontAwesomeIcon> </template>
         </Header>
+
 
         <div class="flex flex-row mt-4  justify-center" :class="msg_response!=''?'block':'hidden'" >
             <div class="basis-1/2 pt-4 sm:pt-6 lg:pt-8">

@@ -14,9 +14,9 @@ const props = defineProps({     msg: String,
 errors: Object, user: Number, model: Object, companies:JSON, positions:JSON, databaseResponse: String, server_error:String })
 
 
-const title = "Employee :: Create";
+const title = "Empleado :: Crear";
 const modalContent = {
-    textContent: 'Saving Information...',
+    textContent: 'Guardando Informacion...',
     iconContent: { 'source': FontAwesomeIcon, icon: faCircleInfo },
 };
 
@@ -83,40 +83,40 @@ function stopSubmit() {
 
                 <div class="border  border-neutral-400  divide-y divide-slate-200 basis-1/2  p-5  text-lg rounded-md
 ">
-                Name <input type="text"  v-model="form.name"
+                Nombre <input type="text"  v-model="form.name"
                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 >
                 <div v-if="errors.name" class="text-red-800">{{ errors.name }}</div>
 
-                First Name <input type="text" v-model="form.first_name"
+                Apellido Paterno <input type="text" v-model="form.first_name"
                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 >
                 <div v-if="errors.name" class="text-red-800">{{ errors.first_name }}</div>
 
-                Last Name <input type="text" v-model="form.last_name"
+                Apellido Materno <input type="text" v-model="form.last_name"
                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 >
                 <div v-if="errors.last_name" class="text-red-800">{{ errors.last_name }}</div>
 
-                Start Date  <input type="date" v-model="form.start_at"
+                Fecha de Ingreso <input type="date" v-model="form.start_at"
                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 >
                 <div v-if="errors.start_at" class="text-red-800">{{ errors.start_at }}</div>
 
-                Company
+                Empresa
                 <select v-model="form.company_id" class="mt-1 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 >
-                <option selected disabled>Choose</option>
+                <option selected disabled>Seleccione</option>
                 <option v-for="option in companies" :value="option.id">
                     {{ option.name }}
                 </option>
                 </select>
                 <div v-if="errors.company_id" class="text-red-800">{{ errors.company_id }}</div>
 
-                Position
+                Puesto
                 <select v-model="form.position_id" class="mt-1 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 >
-                <option selected disabled>Choose</option>
+                <option selected disabled>Seleccione</option>
                 <option v-for="option in positions" :value="option.id">
                     {{ option.name }}
                 </option>
@@ -125,7 +125,7 @@ function stopSubmit() {
 
                 <div class="">
                     <span class="">
-                        <PrimaryButton class="mt-4 mb-1 w-full " ><div class="text-center w-full font-bold text-lg">Save</div></PrimaryButton></span>
+                        <PrimaryButton class="mt-4 mb-1 w-full " ><div class="text-center w-full font-bold text-lg">Guardar</div></PrimaryButton></span>
                 </div>
                 </div>
             </form>

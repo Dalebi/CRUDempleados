@@ -28,7 +28,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
                         Puestos</div>
                 </div>
 
-                <div class="p-6 text-gray-900">You're logged in!</div>
+
             </div>
         </div>
 

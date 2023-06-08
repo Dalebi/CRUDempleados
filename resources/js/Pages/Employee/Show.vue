@@ -11,7 +11,7 @@ const props = defineProps({ errors: Object,  model: Object})
 
 console.log('Employee ID', props.model);
 
-const title = "Employee :: Detail " + props.model.name;
+const title = "Empleado :: Detalle " + props.model.name;
 
 const capitalizaFirstLetter = function (string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -76,7 +76,7 @@ const formatDate = function (date) {
                 <div class="">
                     <span class="">
                         <a :href="route('employees.edit', model.employee_id)">
-                        <PrimaryButton class="mt-4 mb-1 w-full " @click.stop="" ><p class="text-center w-full font-bold text-lg">Edit</p></PrimaryButton> </a></span>
+                        <PrimaryButton class="mt-4 mb-1 w-full " @click.stop="" ><p class="text-center w-full font-bold text-lg">Editar</p></PrimaryButton> </a></span>
                 </div>
 
             </div>
